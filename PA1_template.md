@@ -1,17 +1,9 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(dplyr)
-library(lattice)
-```
+# Reproducible Research: Peer Assessment 1
+
 
 ## Loading and preprocessing the data
-``` {r,echo = TRUE}
+
+```r
 #load activity data
 unzip("./activity.zip")
 activity_data <- read.csv("./activity.csv",sep=",")
@@ -23,21 +15,31 @@ activity <- activity_data[!is.na(activity_data$steps), ]
 
 
 ## What is mean total number of steps taken per day?
-``` {r results="hold",echo = TRUE}
+
+```r
 #calculate total number of steps taken per day 
 activity_total <- activity %>% arrange(date, steps) %>% group_by(date) %>% summarise(sum = sum(steps))
 
 #plot for Total number of steps per day
 hist(activity_total$sum,main = "Total number of steps per day", xlab = "Total Steps")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 # Display Mean & Median
 summary(activity_total$sum)[3:4]
+```
 
+```
+##   Median     Mean 
+## 10765.00 10766.19
 ```
 
 
 ## What is the average daily activity pattern?
-``` {r,echo = TRUE}
+
+```r
 # calculate average daily activity 
 activity_interval_mean <- activity %>% group_by(interval) %>% summarise(steps = mean(steps))
 
@@ -49,12 +51,14 @@ xyplot(steps~interval,
         xlab="Interval",
         ylab="average dialy activity",
         layout = c(1,1))
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 
 ## Imputing missing values
-``` {r,echo = TRUE}
+
+```r
 # Process missing values by replacing NA's with mean number of steps 
 activity_join <- left_join(activity_data, activity_interval_mean, by="interval")
 na.steps <- which(is.na(activity_join$steps.x))
@@ -67,15 +71,25 @@ activity_imputed_total <- activity_impute %>% arrange(date, steps) %>% group_by(
 
 #plot for Total number of steps per day
 hist(activity_imputed_total$sum, main = "Total number of steps per day (Imputed data)", xlab = "Total Steps")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+```r
 # display mean and median steps
 summary(activity_imputed_total$sum)[3:4]
+```
+
+```
+##   Median     Mean 
+## 10766.19 10766.19
 ```
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-``` {r,echo = TRUE} 
+
+```r
 # group activity data by weekday & weekend 
 weekdays <- c("Monday","Tuesday","Wednesday","Thursday","Friday")
 activity_impute$wday <- factor(weekdays(as.Date(activity_impute$date)) %in% weekdays, levels=c(FALSE,TRUE), labels=c("Weekday","Weekend"))
@@ -89,3 +103,5 @@ xyplot(steps ~ interval | levels(wday),
            ylab = "Number of steps",
            layout=c(1,2))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
